@@ -1,0 +1,16 @@
+# Node.js
+
+node_modules/
+
+# Environment variables
+
+.env
+
+
+# Logs
+
+logs/
+*.log
+
+# Docker
+*.tar
