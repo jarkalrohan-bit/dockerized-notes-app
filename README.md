@@ -43,11 +43,11 @@ Git (optional, for cloning the repository)
 ## Setup
 ### Clone this repository (if you haven't already):
  ```bash
-git clone https://github.com/your-username/your-repo-name.git
+git clone https://github.com/jarkalrohan-bit/dockerized-notes-app.git
 ```
 ### Navigate to the project directory:
  ```bash
-cd your-repo-name
+cd dockerized-notes-app
 ```
 
 ### Create a .env file in the project directory to store your MySQL environment variables:
