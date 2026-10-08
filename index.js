@@ -6,20 +6,41 @@ const app = express();
 app.use(bodyParser.json());
 app.use(express.static("client"));
 
-// const db = mysql.createConnection({
-//   host: process.env.DB_HOST || "localhost",
-//   user: process.env.DB_USER || "root",
-//   password: process.env.DB_PASS || "root",
-//   database: process.env.DB_NAME || "notesdb"
-// });
-
-
+// The Hybrid Approach
 const db = mysql.createConnection({
-  host: process.env.DB_HOST || "mysql", // container name
+  host: process.env.DB_HOST || "localhost",
   user: process.env.DB_USER || "root",
-  password: process.env.DB_PASS || "root",
+  password: process.env.DB_PASS,
   database: process.env.DB_NAME || "notesdb"
 });
+
+
+// The Strict Approach
+// const db = mysql.createConnection({
+//   host: process.env.DB_HOST,
+//   user: process.env.DB_USER,
+//   password: process.env.DB_PASS,
+//   database: process.env.DB_NAME
+// });
+
+const createTableQuery = `
+    CREATE TABLE IF NOT EXISTS notes (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      title VARCHAR(255) NOT NULL,
+      content TEXT,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  `;
+
+
+ db.query(createTableQuery, (err) => {
+      if (err) {
+        console.error("❌ Failed to create table:", err.message);
+      } else {
+        console.log("✅ Notes table ready");
+      }
+    });
+  
 
 
 
@@ -37,24 +58,5 @@ app.get("/notes", (req, res) => {
     res.json(results);
   });
 });
-
-
-
-
-
-
-
-// app.get('/', (req,res)=>{
-//   res.send("hiii")
-// })
-
-
-
-
-
-
-
-
-
 
 app.listen(3000, () => console.log("Server running on port 3000"));
