@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    restart: always
+    environment:
+      # 1. MySQL sets up the database root credentials using these exact tags
+      MYSQL_ROOT_PASSWORD: admin        
+      MYSQL_DATABASE: notesdb
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-padmin"]
+      timeout: 5s
+      retries: 5
+
+  web:
+    image: rohanjarkal/node-app:latest
+    ports:
+      - "3000:3000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      # 2. This maps your .env variables to the exact keys your index.js reads:
+      DB_HOST: ${DB_HOST}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      DB_NAME: ${DB_NAME}
+
+volumes:
+  mysql_data:

@@ -11,147 +11,151 @@ This project uses a two-tier architecture:
 │    HTML/CSS/JS       │
 └──────────┬───────────┘
            │
-           │ HTTP
+           │ HTTP (port 3000)
            ▼
 ┌──────────────────────┐
 │   Node.js + Express  │
 │      Backend         │
 └──────────┬───────────┘
            │
-           │ MySQL
+           │ MySQL (port 3306)
            ▼
 ┌──────────────────────┐
 │     MySQL Database   │
-│      Container       │
+│    (Volume Managed)  │
 └──────────────────────┘
 ```
 
-The Node.js backend and MySQL database run in separate Docker containers and communicate through a Docker network.
+The Node.js backend and MySQL database run in separate Docker containers, utilizing internal Docker DNS networking to securely communicate.
 
 
 
 ## Prerequisites
 Before you begin, make sure you have the following installed:
 
-Docker 
+* Docker & Docker Compose
 
-Git (optional, for cloning the repository)
-
-
+* Git (optional, for cloning the repository)
 
 
-## Setup
-### Clone this repository (if you haven't already):
- ```bash
-git clone https://github.com/jarkalrohan-bit/dockerized-notes-app.git
-```
-### Navigate to the project directory:
- ```bash
-cd dockerized-notes-app
-```
-
-### Create a .env file in the project directory to store your MySQL environment variables:
- ```bash
-touch .env
-```
-
-### Open the .env file and add your MySQL configuration:
- ```bash
-MYSQL_HOST=mysql
-MYSQL_USER=your_username
-MYSQL_PASSWORD=your_password
-MYSQL_DB=your_database
-```
 
 
-# To run this two-tier application using without docker-compose
+## Production-Ready Environment Setup (🔒 Strict Approach)
+1. **Clone this repository:**
+   ```bash
+   git clone https://github.com/jarkalrohan-bit/dockerized-notes-app.git
+   cd dockerized-notes-app
+   ```
 
-### First create a docker image from Dockerfile
+2. **Create a `.env` file in the root project directory:**
+   ```bash
+   touch .env
+   ```
+
+3. **Open the `.env` file and define your strict database credentials:**
+   ```ini
+   DB_HOST=mysql
+   DB_USER=root
+   DB_PASS=your_secure_password
+   DB_NAME=notesdb
+   ```
+---
+
+## Method 1: The Modern Way (Using Docker Compose - Recommended) 🚀
+
+Docker Compose orchestrates both containers, manages internal networks, handles stateful persistent volumes, and implements health checks to eliminate backend boot-up race conditions.
+
+### Start the Application
+Simply run the following command to build, link, and spin up the complete stack in the background:
 ```bash
-docker build -t notes-app .
+docker compose up -d
 ```
 
-Now, make sure that you have created a network using following command
-docker network create twotier
-
-Attach both the containers in the same network, so that they can communicate with each other
+### Stop and Clean Up
+To stop the application while keeping your saved data safe:
 ```bash
-i) MySQL container
-
-docker run -d \
-    --name mysql \
-    -v mysql-data:/var/lib/mysql \
-    --network=twotier \
-    -e MYSQL_DATABASE=notesdb \
-    -e MYSQL_ROOT_PASSWORD=admin \
-    -p 3306:3306 \
-    mysql
-
-ii) Backend container
-
-docker run -d \
-    --name node \
-    --network=twotier \
-    -e MYSQL_HOST=mysql \
-    -e MYSQL_USER=root \
-    -e MYSQL_PASSWORD=admin \
-    -e MYSQL_DB=notesdb \
-    -p 3000:3000 \
-    notes-app
+docker compose down
+```
+To stop the application and completely wipe the database storage volume to start fresh:
+```bash
+docker compose down -v
 ```
 
-### Access the Application
+---
 
-Once both containers are running, open:
+## Method 2: The Manual Way (Without Docker Compose) 🛠️
 
-- http://localhost:3000
+If you prefer to orchestrate the infrastructure components manually via the Docker CLI:
 
+### 1. Build your local image
+```bash
+docker build -t rohanjarkal/node-app:latest .
+```
 
-### Check Running Containers
+### 2. Create an isolated virtual network
+```bash
+docker network create helpdesk-net
+```
+
+### 3. Spin up the MySQL Database Container
+```bash
+docker run -d \
+  --name notes-db \
+  --network helpdesk-net \
+  --network-alias mysql \
+  -e MYSQL_ROOT_PASSWORD=your_secure_password \
+  -e MYSQL_DATABASE=notesdb \
+  -p 3306:3306 \
+  mysql:8.0
+```
+*Note: Wait 15 seconds after running this command to allow the database internal systems to completely initialize.*
+
+### 4. Spin up the Node.js API Backend Container
+```bash
+docker run -d \
+  --name notes-web \
+  --network helpdesk-net \
+  -p 3000:3000 \
+  -e DB_HOST=mysql \
+  -e DB_USER=root \
+  -e DB_PASS=your_secure_password \
+  -e DB_NAME=notesdb \
+  rohanjarkal/node-app:latest
+```
+
+## Check Running Containers
+To verify that both your API and database microservices are successfully running side-by-side, run:
 ```bash
 docker ps
 ```
+You should see both **`notes-web`** and **`notes-db`** actively listed as `Up`.
 
-You should see both:
-
-mysql
-
-node
-
-### Stop the Containers
+### Manual Cleanup
+To safely stop and clear the standalone containers:
 ```bash
-docker stop node mysql
+docker stop notes-web notes-db
+docker rm notes-web notes-db
 ```
 
-### Remove the Containers
-```bash
-docker rm node mysql
-```
+---
 
-The mysql-data volume is separate from the container, so removing the container does not remove the database data.
+## Access the Application
+Once the containers are running via either method, open your browser and access the client interface at:
+* **http://localhost:3000**
 
 
-## Current Project Status
- HTML/CSS/JavaScript frontend
 
- Node.js + Express backend
+## Project Features & Architecture Status
+* [x] Decoupled HTML/CSS/JavaScript static frontend asset serving
+* [x] Strict Twelve-Factor Node.js + Express environment variable ingestion
+* [x] Containerized stateful MySQL database distribution
+* [x] Resilient Health Checked Docker Compose orchestration
+* [x] Dynamic database network routing via custom Docker networks
+* [x] Persistent host-mapped volume management
 
- MySQL database
 
- Dockerfile
-
- Docker networking
-
- MySQL Docker volume
-
- Two-tier application setup
-## Future Improvements
- Improve UI/design
-
- Add more features
-
- Docker Compose
-
- Authentication
-
- Production deployment
+## Future Milestones
+* [ ] GitHub Actions workflow for automated CI/CD image delivery to Docker Hub
+* [ ] Database migration management tool integration (Knex.js)
+* [ ] JWT-based User Authentication layer
+* [ ] Cloud Production Deployment (AWS / DigitalOcean)
