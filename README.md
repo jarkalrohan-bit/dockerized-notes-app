@@ -159,5 +159,3 @@ Once the containers are running via either method, open your browser and access 
 * [ ] Database migration management tool integration (Knex.js)
 * [ ] JWT-based User Authentication layer
 * [ ] Cloud Production Deployment (AWS / DigitalOcean)
-
-
