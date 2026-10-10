@@ -1,0 +1,27 @@
+# 1. MYSQL DATABASE DEPLOYMENT
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-deployment
+  namespace: notes-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:8.0
+        env:
+        # These match what your Node.js app expects
+        - name: MYSQL_ROOT_PASSWORD
+          value: "admin"
+        - name: MYSQL_DATABASE
+          value: "notesdb"
+        ports:
+        - containerPort: 3306

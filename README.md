@@ -159,3 +159,6 @@ Once the containers are running via either method, open your browser and access 
 * [ ] Database migration management tool integration (Knex.js)
 * [ ] JWT-based User Authentication layer
 * [ ] Cloud Production Deployment (AWS / DigitalOcean)
+
+## ☸️ Kubernetes Deployment
+For documentation on how to orchestrate and deploy this application using Kubernetes (KinD), please check out the [Kubernetes Deployment Guide](./k8s/README.md).

@@ -1,0 +1,13 @@
+# 2. MYSQL INTERNAL SERVICE
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-service
+  namespace: notes-app
+spec:
+  selector:
+    app: mysql
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306

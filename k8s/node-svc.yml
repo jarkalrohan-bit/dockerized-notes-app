@@ -1,0 +1,14 @@
+# 4. NODE.JS EXTERNAL SERVICE (To view in browser)
+apiVersion: v1
+kind: Service
+metadata:
+  name: notes-service
+  namespace: notes-app
+spec:
+  type: NodePort
+  selector:
+    app: notes-app
+  ports:
+    - port: 3000
+      targetPort: 3000
+      nodePort: 30080 # Tells K8s to expose the app explicitly on port 30080

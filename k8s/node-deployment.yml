@@ -1,0 +1,31 @@
+# 3. NODE.JS NOTES APP DEPLOYMENT
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notes-deployment
+  namespace: notes-app
+spec:
+  replicas: 2 # Runs two copies for high availability!
+  selector:
+    matchLabels:
+      app: notes-app
+  template:
+    metadata:
+      labels:
+        app: notes-app
+    spec:
+      containers:
+      - name: notes-app
+        image: rohanjarkal/node-app:latest # Replace with your Docker Hub image
+        ports:
+        - containerPort: 3000 # The port your Node.js app listens on
+        env:
+        # Injected variables matching the MySQL configurations above
+        - name: DB_HOST
+          value: "mysql-service" # K8s DNS automatically maps this name to the DB!
+        - name: DB_USER
+          value: "root"
+        - name: DB_PASS
+          value: "admin"
+        - name: DB_NAME
+          value: "notesdb"
