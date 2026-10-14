@@ -21,7 +21,7 @@ services:
       start_period: 20s
 
   web:
-    image: rohanjarkal/node-app:latest
+    image: rohanjarkal/notes-app:latest
     build: .
     restart: unless-stopped
     ports:
